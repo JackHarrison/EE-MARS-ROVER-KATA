@@ -3,7 +3,7 @@
 $directions = $_GET['directions'];
 
 $directionValues = ['EAST' => 270, 'WEST' => 90, 'NORTH' => 360, 'SOUTH' => 180];
-$acceptedCommands = ['B'.'F','L','R'];
+$acceptedCommands = ['B','F','L','R'];
 
 $maxHeading = 360;
 $minHeading = 0;
