@@ -1,6 +1,5 @@
 # EE-MARS-ROVER-KATA
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/JackHarrison/EE-MARS-ROVER-KATA)
-####John Harrison 9/12/21
 
 ## Execution<br>
 Run on a webserver with query string of commands<br>
@@ -45,4 +44,8 @@ Within the method **getNewPosition** there are calls to two other methods, **cha
 x position, y position, direction and heading.
 
 ***
+
+
+
+Version: 1.4, Last updated: 2021-12-09
 
