@@ -149,7 +149,7 @@ class Kata
                 break;
             case 'initial':
                 echo 'ROVER IS FACING: ' . $this->initialCoords->direction . '<br>';
-                echo 'ROVER IS AT: X:' . $this->initialCoords->x . ' Y:' . $this->getUpdatedCoordsValue('y') . '<br>';
+                echo 'ROVER IS AT: X:' . $this->initialCoords->x . ' Y:' . $this->initialCoords->y . '<br>';
                 echo 'HEADING: ' . $this->initialCoords->heading . '&deg;' . '<br>';
                 echo '<hr>';
                 break;
