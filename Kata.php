@@ -4,12 +4,51 @@ class Kata
 {
 
     public array $directionValues = ['EAST' => 270, 'WEST' => 90, 'NORTH' => 360, 'SOUTH' => 180];
-    public array $acceptedCommands = ['B','F','L','R'];
+    public array $acceptedCommands = ['B', 'F', 'L', 'R'];
     private int $maxHeading = 360;
     private int $minHeading = 0;
-
+    private int $incrementer = 1;
+    private int $decrementer = -1;
+    private string $defaultValue = '';
     public object $initialCoords;
     public object $updatedCoords;
+
+
+    /**
+     * @param $index
+     * @return mixed|string
+     */
+    public function getCommand($index)
+    {
+        return count($index) ? $index : $this->defaultValue;
+    }
+
+
+    /**
+     * @param $commands
+     */
+    public function runCommands($commands)
+    {
+        foreach ($commands as $command) {
+            in_array($command, $this->acceptedCommands) ? $this->getNewPosition($command) : $this->printResults($command);
+        }
+    }
+
+
+    /**
+     * @param $x
+     * @param $y
+     * @param $dir
+     */
+    public function setInitialCoords($x, $y, $dir)
+    {
+        $this->initialCoords->x = $x;
+        $this->initialCoords->y = $y;
+        $this->initialCoords->direction = $dir;
+        $this->initialCoords->heading = $this->directionValues[$this->initialCoords->direction];
+
+        $this->updatedCoords = $this->initialCoords;
+    }
 
 
     /**
@@ -17,33 +56,33 @@ class Kata
      */
     public function getNewPosition($command)
     {
-        $this->updatedCoords = $this->initialCoords;
-
         switch ($command) {
             case 'F':
-                $this->changePositionalValueDependingOnDirection($this->updatedCoords->direction, 1);
+                $this->changePositionalValueDependingOnDirection($this->getUpdatedCoordsValue('direction'), $this->incrementer);
                 break;
             case 'B':
-                $this->changePositionalValueDependingOnDirection($this->updatedCoords->direction, -1);
+                $this->changePositionalValueDependingOnDirection($this->getUpdatedCoordsValue('direction'), $this->decrementer);
                 break;
             case 'L':
             case 'R':
-                $this->updatedCoords->heading = $this->fixHeading($command, $this->updatedCoords->heading);
-                $this->updatedCoords->direction = $this->changeDirectionStringDependingOnHeading();
+                $val = $this->getUpdatedCoordsValue('heading');
+                $this->setUpdatedCoordsValue('heading', $this->fixHeading($command, $val));
+                $this->setUpdatedCoordsValue('direction', $this->changeDirectionStringDependingOnHeading());
                 break;
         }
+
+        $this->printResults('success');
 
     }
 
 
-
     /**
      * @param $direction
-     * fixes  the issue that 0 degrees is unhandled - I convert this to 360 for abs north
+     * @description  fixes the issue that 0 degrees is unhandled 360 is expected - I convert this to 360 for abs north
      */
     public function fixHeading($direction, $heading)
     {
-        switch ($direction){
+        switch ($direction) {
             case 'L':
 
                 if ($heading == 90) {
@@ -54,7 +93,7 @@ class Kata
             case 'R':
 
                 if ($heading == $this->maxHeading) {
-                    return $this->minHeading;
+                    $heading = $this->minHeading;
                 }
                 return $heading += 90;
         }
@@ -66,21 +105,18 @@ class Kata
      */
     public function changePositionalValueDependingOnDirection($direction, $value)
     {
-        if ($direction === 'EAST') {
-            $this->updatedCoords->x -= $value;
+
+        if ($direction === 'EAST' || $direction === 'WEST') {
+            $prop = 'x';
+            $val = $this->getUpdatedCoordsValue($prop);
+            $direction == 'EAST' ? $val -= $value : $val += $value;
+        } else {
+            $prop = 'y';
+            $val = $this->getUpdatedCoordsValue($prop);
+            $direction == 'SOUTH' ? $val -= $value : $val += $value;
         }
 
-        if ($direction === 'WEST') {
-            $this->updatedCoords->x += $value;
-        }
-
-        if ($direction === 'NORTH') {
-            $this->updatedCoords->y += $value;
-        }
-
-        if ($direction === 'SOUTH') {
-            $this->updatedCoords->y -= $value;
-        }
+        $this->setUpdatedCoordsValue($prop, $val);
 
     }
 
@@ -90,20 +126,31 @@ class Kata
      */
     public function changeDirectionStringDependingOnHeading()
     {
-        return array_search($this->updatedCoords->heading, $this->directionValues);
+        $val = $this->getUpdatedCoordsValue('heading');
+        return array_search($val, $this->directionValues);
     }
 
 
     /**
-     * @param $result // success, no command received or an unknown command
+     * @param $result
+     * @description  success, command recieved and processed
+     * @description  nocommand, no command received  - empty string
+     * @description  default, unknown command string
      */
-    public function printResults ($result) {
+    public function printResults($result)
+    {
         echo '<pre>';
-        switch ($result){
+        switch ($result) {
             case 'success':
-                echo 'ROVER IS FACING: ' . $this->updatedCoords->direction . '<br>';
-                echo 'ROVER IS AT: X:' . $this->updatedCoords->x . ' Y:' . $this->updatedCoords->y . '<br>';
-                echo 'HEADING: ' . $this->updatedCoords->heading . '&deg;' . '<br>';
+                echo 'ROVER IS FACING: ' . $this->getUpdatedCoordsValue('direction') . '<br>';
+                echo 'ROVER IS AT: X:' . $this->getUpdatedCoordsValue('x') . ' Y:' . $this->getUpdatedCoordsValue('y') . '<br>';
+                echo 'HEADING: ' . $this->getUpdatedCoordsValue('heading') . '&deg;' . '<br>';
+                echo '<hr>';
+                break;
+            case 'initial':
+                echo 'ROVER IS FACING: ' . $this->initialCoords->direction . '<br>';
+                echo 'ROVER IS AT: X:' . $this->initialCoords->x . ' Y:' . $this->getUpdatedCoordsValue('y') . '<br>';
+                echo 'HEADING: ' . $this->initialCoords->heading . '&deg;' . '<br>';
                 echo '<hr>';
                 break;
             case 'nocommand':
@@ -116,6 +163,26 @@ class Kata
                 break;
         }
         echo '</pre>';
+    }
+
+    /**
+     * @param $prop
+     * @return mixed
+     */
+    private function getUpdatedCoordsValue($prop)
+    {
+        $val = $this->updatedCoords->{$prop};
+        return $val;
+    }
+
+
+        /**
+     * @param $prop
+     * @param $val
+     */
+    private function setUpdatedCoordsValue($prop, $val)
+    {
+        $this->updatedCoords->{$prop} = $val;
     }
 
 }

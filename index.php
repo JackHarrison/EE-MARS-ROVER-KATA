@@ -4,22 +4,12 @@ $directions = $_GET['directions'];
 include './Kata.php';
 $rover = new Kata();
 
-if (isset($_GET['directions']) && $directions != "") {
+if ($rover->getCommand($directions)) {
+
     $commands = str_split($directions);
-
-    $rover->initialCoords->x = 0;
-    $rover->initialCoords->y = 0;
-    $rover->initialCoords->direction = 'WEST';
-    $rover->initialCoords->heading = $rover->directionValues[$rover->initialCoords->direction];
-
-    foreach ($commands as $command) {
-        if (in_array($command, $rover->acceptedCommands)) {
-            $rover->getNewPosition($command);
-            $rover->printResults('success');
-        } else {
-            $rover->printResults($command);
-        }
-    }
+    $rover->setInitialCoords(0, 0, 'WEST');
+    $rover->printResults('initial');
+    $rover->runCommands($commands);
 } else {
     $rover->printResults('nocommand');
 }
